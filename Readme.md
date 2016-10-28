@@ -2,7 +2,7 @@
 Convert text tables to a json document.
 
 ## Usage
-```$ ././convert_to_json.py (index=[name],...) (file,...) --delim=delim```
+```$ ./convert_to_json.py (index=[name],...) (file,...) --delim=delim```
 
 * *index*:  the table column index to print, begins from 0. Can be combined with '=' to 
             define a name for this index. If equal to '\*', all indexes will be accepted
@@ -19,4 +19,4 @@ $ ./convert_to_json.py '0=Name,1=UserName,3=Phone' Data/names.csv --delim=','
 [{"Phone": "1234", "UserName": "Jim1", "Name": "Jimmy"}, {"Phone": "0000", "UserName": "TheHacker^", "Name": "John"}, {"Phone": "1111", "UserName": "r00x", "Name": "Jack"}]
 ```
 
-Have fun! :)
+### Have fun! :smile:
