@@ -77,16 +77,24 @@ def main(args):
         
         # Add this column definition. 
         column_dict[column_and_name[0]] = column_and_name[1]
-        
+    
+    json_objects_list = []    
+    
     for fd in args.infiles:
         for line in fd:
+            # Convert bytes object to string.
+            if isinstance(line, bytes): 
+                line = line.decode('utf-8')
+            
             # Strip the \n in the end of the line.
             line = line.rstrip('\n')            
             
             # Split the line by the delim.
             splitted_line = line.split(args.delim)
             
-            print (json.dumps (columns_line_to_json (column_dict, splitted_line)))
+            json_objects_list.append (columns_line_to_json (column_dict, splitted_line))
+            
+    print(json.dumps (json_objects_list))
             
 
 if __name__ == '__main__':
