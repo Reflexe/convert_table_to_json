@@ -4,7 +4,7 @@ import json
 
 def all_columns_to_json (column_dict, columns_line):    
     json_object = {}    
-    
+
     for column_index, column_value in enumerate(columns_line):
         if column_index in column_dict:
             column_name = column_dict[column_index]
@@ -34,18 +34,9 @@ def filter_columns_in_dict_to_json(column_dict, columns_line):
                                                                                
     return json_object
             
-def columns_line_to_json (column_dict, columns_line):
+def columns_line_to_json (column_dict, columns_line, should_filter_colunms):
     '''Parse a list of values to a json object with special names.
     '''
-    
-    # Check if column_dict has the '*' member.
-    # If it does, we will print all of the columns (even ones that
-    # are not in column_dict)
-    should_filter_colunms = ('*' not in column_dict)
-    
-    # We have checked it, no need for it now.
-    if not should_filter_colunms:
-        del column_dict['*']
     
     if should_filter_colunms:
         return filter_columns_in_dict_to_json(column_dict, columns_line)
@@ -77,7 +68,17 @@ def main(args):
         
         # Add this column definition. 
         column_dict[column_and_name[0]] = column_and_name[1]
+   
+
+    # Check if column_dict has the '*' member.
+    # If it does, we will print all of the columns (even ones that
+    # are not in column_dict)
+    should_filter_colunms = ('*' not in column_dict)
     
+    # We have checked it, no need for it now.
+    if not should_filter_colunms:
+        del column_dict['*']
+
     json_objects_list = []    
     
     for fd in args.infiles:
@@ -88,11 +89,11 @@ def main(args):
             
             # Strip the \n in the end of the line.
             line = line.rstrip('\n')            
-            
+
             # Split the line by the delim.
             splitted_line = line.split(args.delim)
             
-            json_objects_list.append (columns_line_to_json (column_dict, splitted_line))
+            json_objects_list.append (columns_line_to_json (column_dict, splitted_line, should_filter_colunms))
             
     print(json.dumps (json_objects_list))
             
