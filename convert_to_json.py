@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import re
 
 def all_columns_to_json (column_dict, columns_line):    
     json_object = {}    
@@ -43,6 +44,43 @@ def columns_line_to_json (column_dict, columns_line, should_filter_colunms):
     else:
         return all_columns_to_json(column_dict, columns_line)
 
+def regex_from_delims_list(delims_list):
+    '''Get a regex compiled pattern from a delims list'''    
+    
+    one_characters_delims = ''
+    final_pattern = ''
+            
+    for delim in delims_list:
+        delim_and_maybe_min_max = delim.split(':')
+        
+        escaped_delim = re.escape(delim_and_maybe_min_max[0])
+        
+        # Check if this is a delim without min count.
+        if len(delim) == 1:
+            final_pattern += "%s{1,}|" % (escaped_delim)
+        elif len(delim) == 2:
+            min_and_maybe_max = delim_and_maybe_min_max[1].split('-')
+            
+            current_pattern = escaped_delim
+            
+            # Add count to the regex (only min or max too)
+            if len(min_and_maybe_max) == 2:
+                current_pattern += '{%d,%d}' % (int(min_and_maybe_max[0],
+                                                int(min_and_maybe_max[1])))
+            else:
+                current_pattern += '{%d,}' % (int(min_and_maybe_max[0]))
+                
+            final_pattern += current_pattern + '|'
+        else:
+            raise ValueError("Invalid ':' count in the delimiter argument")
+
+        # If there are one character delims without count, add them. If not
+        # Remove the last OR ('|').
+  
+        final_pattern = final_pattern[:-1]
+            
+        return re.compile (final_pattern)
+        
 
 def main(args):
     column_dict = {}    
@@ -79,6 +117,9 @@ def main(args):
     if not should_filter_colunms:
         del column_dict['*']
 
+    # Parse the delim list into a regex pattern.
+    strip_regex_pattern = regex_from_delims_list(args.delimiters)
+
     json_objects_list = []    
     
     for fd in args.infiles:
@@ -90,13 +131,31 @@ def main(args):
             # Strip the \n in the end of the line.
             line = line.rstrip('\n')            
 
-            # Split the line by the delim.
-            splitted_line = line.split(args.delim)
+            # Split the line by the delims.
+            splitted_line = re.split(strip_regex_pattern, line)
             
             json_objects_list.append (columns_line_to_json (column_dict, splitted_line, should_filter_colunms))
             
     print(json.dumps (json_objects_list))
             
+
+def comma_list(string):
+    '''Convert a comma list '1,2,3,4' to a list
+    [1,2,3,4] with escaping of , by a one \\ char'''
+    
+    # Split the string by commas after non-\ chars.
+    splitted_string = re.split('(?!\\\).,', re.escape(string))
+    
+    replaced_string = []    
+        
+    # Replace '\,' with ',' and '\\' with '\'.
+    for string in splitted_string:
+        string = string.replace ('\\\\', '\\')
+        string = string.replace ('\\\\,', ',')
+    
+        replaced_string.append (string)    
+    
+    return replaced_string
 
 if __name__ == '__main__':
     import argparse    
@@ -104,7 +163,10 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('columns_and_names', help='The columns and its names to print out (format: n=name)', default='*')
-    parser.add_argument('--delim', '-d', help='The input columns delimeter', default='\t')
+    parser.add_argument('--delimiters', '-d', type=comma_list, 
+                        help='A list of input columns delimiters. Format: delim[:min[-max]]. Where `min` and `max` are the numbers of times `delim` should repeat. As default min=1 and max is not set. Enter "\," for the delimiter "," and "\\\\"" for "\\"',
+                        default=(' ', '\t'), 
+                        metavar='delim[:min-max], ...')
     parser.add_argument('infiles', type=argparse.FileType('rb'), default=(stdin,), metavar='file', nargs='*')
     
     main(parser.parse_args())
