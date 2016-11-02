@@ -11,7 +11,7 @@ Convert text tables to a json document.
 * *file*:   one or more file names to read from. The default is stdin.
 
 * *delim*:  One or more string delimiter of the table seperated by comma (,). Can be combined be ':' and
-            a minimum delimiter count, and (optional) '-' and maximum delimiter count. The default minimum
+            a minimum delimiter repeat count, and (optional) '-' and maximum delimiter repeat count. The default minimum
             number is 1, the default maximum number is infinite. 
 
 ## Examples
