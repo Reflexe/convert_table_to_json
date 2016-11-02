@@ -163,10 +163,10 @@ if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
     parser.add_argument('columns_and_names', help='The columns and its names to print out (format: n=name)', default='*')
-    parser.add_argument('--delimiters', '-d', type=comma_list, 
+    parser.add_argument('--delim', '-d', type=comma_list, 
                         help='A list of input columns delimiters. Format: delim[:min[-max]]. Where `min` and `max` are the numbers of times `delim` should repeat. As default min=1 and max is not set. Enter "\," for the delimiter "," and "\\\\"" for "\\"',
                         default=(' ', '\t'), 
-                        metavar='delim[:min-max], ...')
+                        metavar='delim[:min-max]')
     parser.add_argument('infiles', type=argparse.FileType('rb'), default=(stdin,), metavar='file', nargs='*')
     
     main(parser.parse_args())
