@@ -118,7 +118,7 @@ def main(args):
         del column_dict['*']
 
     # Parse the delim list into a regex pattern.
-    strip_regex_pattern = regex_from_delims_list(args.delimiters)
+    strip_regex_pattern = regex_from_delims_list(args.delim)
 
     json_objects_list = []    
     
