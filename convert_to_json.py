@@ -155,8 +155,6 @@ def comma_list(string):
     
         replaced_string.append (string)    
 
-    print(replaced_string)
-
     return replaced_string
 
 if __name__ == '__main__':
