@@ -56,9 +56,9 @@ def regex_from_delims_list(delims_list):
         escaped_delim = re.escape(delim_and_maybe_min_max[0])
         
         # Check if this is a delim without min count.
-        if len(delim) == 1:
+        if len(delim_and_maybe_min_max) == 1:
             final_pattern += "%s{1,}|" % (escaped_delim)
-        elif len(delim) == 2:
+        elif len(delim_and_maybe_min_max) == 2:
             min_and_maybe_max = delim_and_maybe_min_max[1].split('-')
             
             current_pattern = escaped_delim
@@ -144,17 +144,19 @@ def comma_list(string):
     [1,2,3,4] with escaping of , by a one \\ char'''
     
     # Split the string by commas after non-\ chars.
-    splitted_string = re.split('(?!\\\).,', re.escape(string))
+    splitted_string = re.split('(?<!\\\\),', string)
     
     replaced_string = []    
         
     # Replace '\,' with ',' and '\\' with '\'.
     for string in splitted_string:
+        string = string.replace ('\\,', ',')
         string = string.replace ('\\\\', '\\')
-        string = string.replace ('\\\\,', ',')
     
         replaced_string.append (string)    
-    
+
+    print(replaced_string)
+
     return replaced_string
 
 if __name__ == '__main__':
